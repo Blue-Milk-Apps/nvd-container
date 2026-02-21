@@ -20,9 +20,31 @@ The image uses a multi-stage Docker build:
 ## Prerequisites
 
 - Docker
-- An NVD API key — [request one here](https://nvd.nist.gov/developers/request-an-api-key) (free)
+- An NVD API key (only for local builds) — [request one here](https://nvd.nist.gov/developers/request-an-api-key) (free)
 
-## Usage
+## Option A: Use the Pre-Built Image from GHCR
+
+A nightly CI job publishes a fresh image to GitHub Container Registry. This is the easiest way to get started — no API key or build step required.
+
+```bash
+# Pull the latest image
+docker pull ghcr.io/blue-milk-apps/nvd-container:latest
+
+# Run it (creates and populates the nvd-owasp-data volume)
+docker run -d --name nvd-container \
+  -v nvd-owasp-data:/data/owasp \
+  ghcr.io/blue-milk-apps/nvd-container:latest
+```
+
+A date-tagged image (`:YYYYMMDD`) is also available for pinning or rollback:
+
+```bash
+docker pull ghcr.io/blue-milk-apps/nvd-container:20260221
+```
+
+## Option B: Build Locally
+
+If you need to control when the NVD data is fetched or want to iterate on the image itself.
 
 ### Build
 
@@ -39,6 +61,8 @@ make run
 ```
 
 Starts the container and populates the `nvd-owasp-data` named volume.
+
+## Managing the Container
 
 ### Check Status
 
@@ -57,7 +81,7 @@ make clean   # stop container and remove named volumes
 
 ## Consuming the Data
 
-Other containers mount the named volume to access NVD data. No code changes needed in the consumer — just a volume mount.
+Other containers mount the named volume to access NVD data. No code changes needed in the consumer — just a volume mount. This works the same regardless of whether the image was pulled from GHCR or built locally.
 
 Mount `nvd-owasp-data` at the path Dependency-Check expects and set offline mode:
 
