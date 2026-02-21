@@ -5,9 +5,9 @@
 # =============================================================================
 # Stage 1: Download NVD data
 # =============================================================================
-FROM eclipse-temurin:17-jre-alpine AS downloader
+FROM eclipse-temurin:17-jre AS downloader
 
-RUN apk add --no-cache bash curl wget unzip
+RUN apt-get update && apt-get install -y --no-install-recommends unzip && rm -rf /var/lib/apt/lists/*
 
 # Install OWASP Dependency-Check (used only to run --updateonly)
 ARG DEPENDENCY_CHECK_VERSION=12.2.0
