@@ -6,13 +6,13 @@ TAG   := latest
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-14s %s\n", $$1, $$2}'
 
-build: ## Build the NVD container (requires NVD_API_KEY)
-	@if [ -z "$(NVD_API_KEY)" ]; then \
-		echo "Error: NVD_API_KEY is required."; \
+build: ## Build the NVD container (requires NVD_API)
+	@if [ -z "$(NVD_API)" ]; then \
+		echo "Error: NVD_API is required."; \
 		echo "Get a free key at: https://nvd.nist.gov/developers/request-an-api-key"; \
 		exit 1; \
 	fi
-	docker build --build-arg NVD_API_KEY=$(NVD_API_KEY) -t $(IMAGE):$(TAG) .
+	docker build --build-arg NVD_API=$(NVD_API) -t $(IMAGE):$(TAG) .
 
 run: ## Start the NVD data container
 	docker run -d --name $(IMAGE) \

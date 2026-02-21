@@ -16,13 +16,13 @@ RUN wget -q "https://github.com/dependency-check/DependencyCheck/releases/downlo
     && rm "dependency-check-${DEPENDENCY_CHECK_VERSION}-release.zip"
 
 # Build the H2 database that OWASP Dependency-Check requires
-ARG NVD_API_KEY
-RUN test -n "$NVD_API_KEY" || { echo "ERROR: NVD_API_KEY build arg is required"; exit 1; } \
+ARG NVD_API
+RUN test -n "$NVD_API" || { echo "ERROR: NVD_API build arg is required"; exit 1; } \
     && mkdir -p /data/owasp \
     && /opt/dependency-check/bin/dependency-check.sh \
         --updateonly \
         --data /data/owasp \
-        --nvdApiKey "$NVD_API_KEY"
+        --nvdApiKey "$NVD_API"
 
 # Write build metadata
 RUN printf "build_date=%s\ndc_version=%s\nsource=NVD API 2.0 (via OWASP Dependency-Check)\n" \

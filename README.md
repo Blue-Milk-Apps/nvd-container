@@ -27,7 +27,7 @@ The image uses a multi-stage Docker build:
 ### Build
 
 ```bash
-NVD_API_KEY=<your-key> make build
+NVD_API=<your-key> make build
 ```
 
 The first build takes 15–30 minutes (NVD database download). Subsequent rebuilds with `--no-cache` pull fresh data.
