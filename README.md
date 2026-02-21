@@ -79,7 +79,7 @@ make stop    # stop and remove container
 make clean   # stop container and remove named volumes
 ```
 
-## Consuming the Data
+## Consuming the Data From Another Container
 
 Other containers mount the named volume to access NVD data. No code changes needed in the consumer — just a volume mount. This works the same regardless of whether the image was pulled from GHCR or built locally.
 
