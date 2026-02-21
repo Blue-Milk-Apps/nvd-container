@@ -7,13 +7,14 @@ Standalone Docker container that downloads and serves the [National Vulnerabilit
 | Volume | Path | Contents | Consumer |
 |--------|------|----------|----------|
 | `nvd-owasp-data` | `/data/owasp` | OWASP Dependency-Check H2 database (`odc.mv.db`) | Tools using OWASP DC (e.g. phoenix-scanner) |
-| `nvd-json-data` | `/data/json` | Yearly CVE JSON feeds (2002–present) | Any tool that reads raw NVD JSON |
+
+All data is sourced from the official [NVD API 2.0](https://nvd.nist.gov/developers/vulnerabilities) via OWASP Dependency-Check's `--updateonly` mode.
 
 ## How It Works
 
 The image uses a multi-stage Docker build:
 
-1. **Stage 1 (discarded)** — An Alpine + JRE image installs OWASP Dependency-Check, runs `--updateonly` to build the H2 database, and downloads raw JSON feeds from [fkie-cad/nvd-json-data-feeds](https://github.com/fkie-cad/nvd-json-data-feeds). The Java runtime, DC binary, and API key exist only in this stage.
+1. **Stage 1 (discarded)** — An Alpine + JRE image installs OWASP Dependency-Check and runs `--updateonly` to build the H2 database from the official NVD API. The Java runtime, DC binary, and API key exist only in this stage.
 2. **Stage 2 (final)** — A minimal Alpine image containing only the data files. Zero runtime processes beyond `tail -f /dev/null` to keep the container alive for volume sharing.
 
 ## Prerequisites
@@ -37,7 +38,7 @@ The first build takes 15–30 minutes (NVD database download). Subsequent rebuil
 make run
 ```
 
-Starts the container and populates the `nvd-owasp-data` and `nvd-json-data` named volumes.
+Starts the container and populates the `nvd-owasp-data` named volume.
 
 ### Check Status
 
@@ -56,9 +57,7 @@ make clean   # stop container and remove named volumes
 
 ## Consuming the Data
 
-Other containers mount the named volumes to access NVD data. No code changes needed in the consumer — just a volume mount.
-
-### OWASP Dependency-Check consumers
+Other containers mount the named volume to access NVD data. No code changes needed in the consumer — just a volume mount.
 
 Mount `nvd-owasp-data` at the path Dependency-Check expects and set offline mode:
 
@@ -76,23 +75,6 @@ services:
       - DC_NO_UPDATE=1
 ```
 
-### Raw JSON consumers
-
-Mount `nvd-json-data` for direct access to yearly CVE feeds:
-
-```yaml
-volumes:
-  nvd-json-data:
-    external: true
-
-services:
-  my-tool:
-    volumes:
-      - nvd-json-data:/nvd:ro
-```
-
-Files available: `CVE-2002.json` through `CVE-<current-year>.json`, plus `CVE-Recent.json` and `CVE-Modified.json`. Compressed `.json.xz` originals are also retained.
-
 ## CI/CD
 
 A GitHub Actions workflow (`.github/workflows/nightly-nvd-update.yml`) rebuilds the image on a nightly schedule:
@@ -109,7 +91,6 @@ nvd-container/
 ├── Dockerfile                              # Multi-stage build
 ├── Makefile                                # build / run / stop / status / clean
 ├── scripts/
-│   ├── download-nvd-json.sh                # Fetches yearly JSON feeds
 │   └── healthcheck.sh                      # Verifies data integrity
 └── .github/
     └── workflows/

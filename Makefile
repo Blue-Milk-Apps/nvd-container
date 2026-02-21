@@ -17,7 +17,6 @@ build: ## Build the NVD container (requires NVD_API_KEY)
 run: ## Start the NVD data container
 	docker run -d --name $(IMAGE) \
 		-v nvd-owasp-data:/data/owasp \
-		-v nvd-json-data:/data/json \
 		$(IMAGE):$(TAG)
 
 stop: ## Stop the NVD data container
@@ -31,4 +30,4 @@ status: ## Show container health and NVD version info
 clean: ## Stop container and remove named volumes
 	-docker stop $(IMAGE) 2>/dev/null
 	-docker rm $(IMAGE) 2>/dev/null
-	-docker volume rm nvd-owasp-data nvd-json-data 2>/dev/null
+	-docker volume rm nvd-owasp-data 2>/dev/null

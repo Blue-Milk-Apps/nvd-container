@@ -7,7 +7,7 @@
 # =============================================================================
 FROM eclipse-temurin:17-jre-alpine AS downloader
 
-RUN apk add --no-cache bash curl wget unzip xz
+RUN apk add --no-cache bash curl wget unzip
 
 # Install OWASP Dependency-Check (used only to run --updateonly)
 ARG DEPENDENCY_CHECK_VERSION=12.2.0
@@ -24,12 +24,8 @@ RUN test -n "$NVD_API_KEY" || { echo "ERROR: NVD_API_KEY build arg is required";
         --data /data/owasp \
         --nvdApiKey "$NVD_API_KEY"
 
-# Download raw NVD JSON feeds (tool-agnostic, for future consumers)
-COPY scripts/download-nvd-json.sh /tmp/download-nvd-json.sh
-RUN chmod +x /tmp/download-nvd-json.sh && bash /tmp/download-nvd-json.sh /data/json
-
 # Write build metadata
-RUN printf "build_date=%s\ndc_version=%s\nsource=NVD API + fkie-cad/nvd-json-data-feeds\n" \
+RUN printf "build_date=%s\ndc_version=%s\nsource=NVD API 2.0 (via OWASP Dependency-Check)\n" \
         "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
         "${DEPENDENCY_CHECK_VERSION}" \
     > /data/NVD_VERSION.txt
@@ -46,7 +42,7 @@ RUN chmod +x /healthcheck.sh
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
     CMD /healthcheck.sh
 
-VOLUME ["/data/owasp", "/data/json"]
+VOLUME ["/data/owasp"]
 
 # Data container pattern: stay alive to serve volumes, zero CPU
 CMD ["tail", "-f", "/dev/null"]
