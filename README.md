@@ -83,10 +83,36 @@ make clean   # stop container and remove named volumes
 
 Other containers mount the named volume to access NVD data. No code changes needed in the consumer — just a volume mount. This works the same regardless of whether the image was pulled from GHCR or built locally.
 
-Mount `nvd-owasp-data` at the path Dependency-Check expects and set offline mode:
+### Option 1: Docker Compose (recommended)
+
+Pull the nvd-container image from GHCR and wire up the shared volume in a single `docker-compose.yml`:
 
 ```yaml
-# In the consumer's docker-compose.yml
+services:
+  nvd-container:
+    image: ghcr.io/blue-milk-apps/nvd-container:latest
+    volumes:
+      - nvd-owasp-data:/data/owasp
+
+  my-scanner:
+    depends_on:
+      - nvd-container
+    volumes:
+      - nvd-owasp-data:/opt/dependency-check/data:ro
+    environment:
+      - DC_NO_UPDATE=1
+
+volumes:
+  nvd-owasp-data:
+```
+
+Run `docker compose up` and Compose handles the pull, volume creation, and startup order.
+
+### Option 2: External volume
+
+If you already have the nvd-container running (via `docker run` or another Compose stack), reference its volume as external:
+
+```yaml
 volumes:
   nvd-owasp-data:
     external: true
