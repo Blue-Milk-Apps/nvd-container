@@ -49,7 +49,7 @@ If you need to control when the NVD data is fetched or want to iterate on the im
 ### Build
 
 ```bash
-NVD_API=<your-key> make build
+NVD_API_KEY=<your-key> make build
 ```
 
 The first build takes 15–30 minutes (NVD database download). Subsequent rebuilds with `--no-cache` pull fresh data.
@@ -132,7 +132,7 @@ A GitHub Actions workflow (`.github/workflows/nightly-nvd-update.yml`) rebuilds 
 - **Trigger:** Daily at 2 AM UTC + manual dispatch
 - **Registry:** GitHub Container Registry (`ghcr.io`)
 - **Tags:** `:latest` and `:YYYYMMDD` (for rollback)
-- **API key:** Read from the `NVD_API` organization secret
+- **API key:** Read from the `NVD_API_KEY` organization secret
 
 ## Project Structure
 
