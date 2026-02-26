@@ -39,20 +39,30 @@ docker run -d --name nvd-container \
 A date-tagged image (`:YYYYMMDD`) is also available for pinning or rollback:
 
 ```bash
-docker pull ghcr.io/blue-milk-apps/nvd-container:20260221
+docker pull ghcr.io/blue-milk-apps/nvd-container:YYYYMMDD
 ```
 
 ## Option B: Build Locally
 
 If you need to control when the NVD data is fetched or want to iterate on the image itself.
 
-### Build
+### Build (local platform only)
 
 ```bash
 NVD_API_KEY=<your-key> make build
 ```
 
-The first build takes 15–30 minutes (NVD database download). Subsequent rebuilds with `--no-cache` pull fresh data.
+Builds a single-platform image for the current machine. The first build takes 15–30 minutes (NVD database download). Subsequent rebuilds with `--no-cache` pull fresh data.
+
+### Build and push (multi-arch)
+
+To publish a multi-arch image (`linux/amd64` + `linux/arm64`) to a registry:
+
+```bash
+NVD_API_KEY=<your-key> REGISTRY=ghcr.io/your-org make push
+```
+
+Requires Docker Buildx and an active `docker login` session for the target registry.
 
 ### Run
 
@@ -132,6 +142,7 @@ A GitHub Actions workflow (`.github/workflows/nightly-nvd-update.yml`) rebuilds 
 - **Trigger:** Daily at 2 AM UTC + manual dispatch
 - **Registry:** GitHub Container Registry (`ghcr.io`)
 - **Tags:** `:latest` and `:YYYYMMDD` (for rollback)
+- **Platforms:** `linux/amd64` and `linux/arm64` (multi-arch manifest)
 - **API key:** Read from the `NVD_API_KEY` organization secret
 
 ## Project Structure
@@ -139,7 +150,7 @@ A GitHub Actions workflow (`.github/workflows/nightly-nvd-update.yml`) rebuilds 
 ```
 nvd-container/
 ├── Dockerfile                              # Multi-stage build
-├── Makefile                                # build / run / stop / status / clean
+├── Makefile                                # build / push / run / stop / status / clean
 ├── scripts/
 │   └── healthcheck.sh                      # Verifies data integrity
 └── .github/
