@@ -14,3 +14,5 @@ For first release, add ```## [1.0.0] - 2026-02-21``` and move items from unrelea
 - OWASP Dependency-Check H2 database built from the official NVD API 2.0
 - Makefile with `build`, `run`, `stop`, `status`, and `clean` targets
 - GitHub Actions workflow for nightly rebuilds to GHCR
+- Multi-arch manifest support for `linux/amd64` and `linux/arm64` via Docker Buildx
+- Makefile `push` target for manually publishing a multi-arch image to a registry
