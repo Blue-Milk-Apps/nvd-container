@@ -22,6 +22,10 @@ jobs:
         id: meta
         run: echo "image_name=${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
 
+      - name: Set date tag
+        id: date
+        run: echo "tag=$(date +%Y%m%d)" >> "$GITHUB_OUTPUT"
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -46,4 +50,4 @@ jobs:
             NVD_API_KEY=${{ secrets.NVD_API_KEY }}
           tags: |
             ${{ env.REGISTRY }}/${{ steps.meta.outputs.image_name }}:latest
-            ${{ env.REGISTRY }}/${{ steps.meta.outputs.image_name }}:${{ github.run_id }}
+            ${{ env.REGISTRY }}/${{ steps.meta.outputs.image_name }}:${{ steps.date.outputs.tag }}
