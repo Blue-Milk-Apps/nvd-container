@@ -36,6 +36,8 @@ RUN printf "build_date=%s\ndc_version=%s\nsource=NVD API 2.0 (via OWASP Dependen
 FROM alpine:3.21
 
 COPY --from=downloader /data /data
+# Allow non-root consumer containers to create H2 lock files
+RUN chmod 777 /data/owasp
 COPY scripts/healthcheck.sh /healthcheck.sh
 RUN chmod +x /healthcheck.sh
 
