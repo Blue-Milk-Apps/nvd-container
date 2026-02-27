@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # NVD Data Container
 # Multi-stage build: Stage 1 downloads NVD data, Stage 2 serves it via volumes.
 # The OWASP DC binary and Java runtime exist only in Stage 1 (discarded).
@@ -16,13 +17,14 @@ RUN wget -q "https://github.com/dependency-check/DependencyCheck/releases/downlo
     && rm "dependency-check-${DEPENDENCY_CHECK_VERSION}-release.zip"
 
 # Build the H2 database that OWASP Dependency-Check requires
-ARG NVD_API_KEY
-RUN test -n "$NVD_API_KEY" || { echo "ERROR: NVD_API_KEY build arg is required"; exit 1; } \
+# The API key is mounted as a BuildKit secret — never stored in any image layer.
+RUN --mount=type=secret,id=NVD_API_KEY \
+    test -s /run/secrets/NVD_API_KEY || { echo "ERROR: NVD_API_KEY secret is required"; exit 1; } \
     && mkdir -p /data/owasp \
     && /opt/dependency-check/bin/dependency-check.sh \
         --updateonly \
         --data /data/owasp \
-        --nvdApiKey "$NVD_API_KEY"
+        --nvdApiKey "$(cat /run/secrets/NVD_API_KEY)"
 
 # Write build metadata
 RUN printf "build_date=%s\ndc_version=%s\nsource=NVD API 2.0 (via OWASP Dependency-Check)\n" \
@@ -36,6 +38,8 @@ RUN printf "build_date=%s\ndc_version=%s\nsource=NVD API 2.0 (via OWASP Dependen
 FROM alpine:3.21
 
 COPY --from=downloader /data /data
+# Allow non-root consumer containers to create H2 lock files
+RUN chmod 777 /data/owasp
 COPY scripts/healthcheck.sh /healthcheck.sh
 RUN chmod +x /healthcheck.sh
 
