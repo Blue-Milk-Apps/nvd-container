@@ -14,7 +14,7 @@ build: ## Build the NVD container for the local platform (requires NVD_API_KEY)
 		echo "Get a free key at: https://nvd.nist.gov/developers/request-an-api-key"; \
 		exit 1; \
 	fi
-	docker build --build-arg NVD_API_KEY=$(NVD_API_KEY) -t $(IMAGE):$(TAG) .
+	docker build --secret id=NVD_API_KEY,env=NVD_API_KEY -t $(IMAGE):$(TAG) .
 
 push: ## Build and push multi-arch image (requires NVD_API_KEY and REGISTRY, e.g. REGISTRY=ghcr.io/your-org)
 	@if [ -z "$(NVD_API_KEY)" ]; then \
@@ -27,7 +27,7 @@ push: ## Build and push multi-arch image (requires NVD_API_KEY and REGISTRY, e.g
 	fi
 	docker buildx build \
 		--platform $(PLATFORMS) \
-		--build-arg NVD_API_KEY=$(NVD_API_KEY) \
+		--secret id=NVD_API_KEY,env=NVD_API_KEY \
 		-t $(REGISTRY)/$(IMAGE):$(TAG) \
 		--push \
 		.

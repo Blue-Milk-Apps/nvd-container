@@ -46,7 +46,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           no-cache: true
-          build-args: |
+          secrets: |
             NVD_API_KEY=${{ secrets.NVD_API_KEY }}
           tags: |
             ${{ env.REGISTRY }}/${{ steps.meta.outputs.image_name }}:latest
