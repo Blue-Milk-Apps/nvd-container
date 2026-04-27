@@ -1,8 +1,8 @@
-name: Nightly NVD Update
+name: Weekly NVD Update
 
 on:
   schedule:
-    - cron: '0 2 * * *' # 2 AM UTC daily
+    - cron: '0 2 * * 3' # 2 AM UTC every Wednesday
   workflow_dispatch: # manual trigger
 
 env:
