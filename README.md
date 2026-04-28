@@ -24,7 +24,7 @@ The image uses a multi-stage Docker build:
 
 ## Option A: Use the Pre-Built Image from GHCR
 
-A nightly CI job publishes a fresh image to GitHub Container Registry. This is the easiest way to get started — no API key or build step required.
+A weekly CI job publishes a fresh image to GitHub Container Registry. This is the easiest way to get started — no API key or build step required.
 
 ```bash
 # Pull the latest image
@@ -137,9 +137,9 @@ services:
 
 ## CI/CD
 
-A GitHub Actions workflow (`.github/workflows/nightly-nvd-update.yml`) rebuilds the image on a nightly schedule:
+A GitHub Actions workflow (`.github/workflows/weekly-nvd-update.yml`) rebuilds the image once a week:
 
-- **Trigger:** Daily at 2 AM UTC + manual dispatch
+- **Trigger:** Wednesdays at 2 AM UTC + manual dispatch
 - **Registry:** GitHub Container Registry (`ghcr.io`)
 - **Tags:** `:latest` and `:YYYYMMDD` (for rollback)
 - **Platforms:** `linux/amd64` and `linux/arm64` (multi-arch manifest)
@@ -155,5 +155,5 @@ nvd-container/
 │   └── healthcheck.sh                      # Verifies data integrity
 └── .github/
     └── workflows/
-        └── nightly-nvd-update.yml          # Nightly CI rebuild
+        └── weekly-nvd-update.yml           # Weekly CI rebuild
 ```
